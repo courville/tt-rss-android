@@ -1,6 +1,20 @@
 apply plugin: 'com.android.application'
 apply plugin: 'net.ltgt.errorprone'
 
+// Load keystore.properties
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('keystore.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { stream ->
+        localProperties.load(stream)
+    }
+}
+
+// Make properties available to the project
+localProperties.each { prop ->
+    project.ext.set(prop.key, prop.value)
+}
+
 android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
