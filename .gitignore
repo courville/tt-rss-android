@@ -4,6 +4,7 @@ gen/
 .idea/
 build/
 local.properties
+keystore.properties
 import-summary.txt
 Thumbs.db
 *.iml
