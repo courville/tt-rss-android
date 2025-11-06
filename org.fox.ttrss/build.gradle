@@ -1,21 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'net.ltgt.errorprone'
 
-// Load keystore.properties
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('keystore.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withInputStream { stream ->
-        localProperties.load(stream)
-    }
-}
-
-// Make properties available to the project
-localProperties.each { prop ->
-    project.ext.set(prop.key, prop.value)
-}
-
 android {
+    def keystorePropertiesFile = rootProject.file("keystore.properties")
+    def keystoreProperties = new Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -49,11 +41,11 @@ android {
         }
 
         signed {
-            if (project.hasProperty("SIGNING_STORE_FILE")) {
-                storeFile file(SIGNING_STORE_FILE)
-                storePassword SIGNING_STORE_PASSWORD
-                keyAlias SIGNING_KEY_ALIAS
-                keyPassword SIGNING_KEY_PASSWORD
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
             }
         }
     }
@@ -69,12 +61,15 @@ android {
             manifestPlaceholders = [
                 appIcon: "@mipmap/ic_launcher_variant"
             ]
+            signingConfig = signingConfigs.signed
+            matchingFallbacks = ['release']
         }
 
         release {
             minifyEnabled = false
-            versionNameSuffix = "-unsigned"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
+            signingConfig = signingConfigs.signed
+            versionNameSuffix = ""
         }
 
         signed {
@@ -111,6 +106,11 @@ android {
         checkReleaseBuilds = false
         disable 'MissingTranslation', 'ExtraTranslation', 'MissingQuantity', 'ImpliedQuantity'
         enable 'SuspiciousIndentation'
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "ttrss-${variant.versionName}${variant.buildType.versionNameSuffix}.apk"
+        }
     }
 }
 
