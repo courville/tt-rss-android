@@ -115,7 +115,7 @@ public class Application extends android.app.Application {
                                     .withResTheme(R.style.Theme_AppCompat_Dialog)
                                     .build(),
                             new MailSenderConfigurationBuilder()
-                                    .withMailTo("cthulhoo+ttrss-acra@gmail.com")
+                                    .withMailTo("software+ttrss-acra@courville.org")
                                     .withReportAsFile(true)
                                     .withReportFileName("crash.txt")
                                     .build()
