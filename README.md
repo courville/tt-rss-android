@@ -1,6 +1,13 @@
 Tiny Tiny RSS client for Android
 ================================
 
+## Notes about this fork
+
+Since I have been using ttrss Android client for years and have not found any suitable replacement, I have decided to maintain it for my personal use.
+I have added the following feature apart from some stability enahancements and dependencies upsteps:
+
+* Hardware volume button navigation in headlines
+
 ## Some notes about this project
 
 * The original tt-rss-android project, hosted at https://tt-rss.org/ and its various subdomains, [will be gone after 2025-11-01](https://community.tt-rss.org/t/the-end-of-tt-rss-org/7164).
