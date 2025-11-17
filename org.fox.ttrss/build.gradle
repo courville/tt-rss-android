@@ -48,14 +48,18 @@ android {
             manifestPlaceholders = [
                 appIcon: "@mipmap/ic_launcher_variant"
             ]
-            signingConfig = signingConfigs.signed
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.signed
+            }
             matchingFallbacks = ['release']
         }
 
         release {
             minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            signingConfig = signingConfigs.signed
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.signed
+            }
             versionNameSuffix = ""
         }
 
@@ -63,7 +67,9 @@ android {
             minifyEnabled = false
             versionNameSuffix = "-signed"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            signingConfig = signingConfigs.signed
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.signed
+            }
             matchingFallbacks = ['release']
         }
 
@@ -71,7 +77,9 @@ android {
             minifyEnabled = false
             versionNameSuffix = "-signed-branch"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-            signingConfig = signingConfigs.signed
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.signed
+            }
             applicationIdSuffix = ".branch"
             resValue "string", "app_name", "Tiny Tiny RSS (dev)"
             manifestPlaceholders = [
