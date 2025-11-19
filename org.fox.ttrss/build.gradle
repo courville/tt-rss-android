@@ -18,7 +18,7 @@ android {
         minSdkVersion 24
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 35
-        compileSdkVersion = 36
+        compileSdk = 36
         versionCode = getGitVersionCode()
         versionName = getVersion()
         vectorDrawables.useSupportLibrary = true
@@ -102,6 +102,12 @@ android {
         variant.outputs.all {
             outputFileName = "ttrss-${variant.versionName}${variant.buildType.versionNameSuffix}.apk"
         }
+    }
+    lint {
+        abortOnError true
+        checkReleaseBuilds false
+        disable 'MissingTranslation', 'ExtraTranslation', 'MissingQuantity', 'ImpliedQuantity'
+        enable 'SuspiciousIndentation'
     }
 }
 
