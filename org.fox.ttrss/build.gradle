@@ -18,7 +18,11 @@ android {
         minSdkVersion 24
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 35
+<<<<<<< HEAD
         compileSdk = 36
+=======
+        compileSdkVersion = 36
+>>>>>>> upstream/master
         versionCode = getGitVersionCode()
         versionName = getVersion()
         vectorDrawables.useSupportLibrary = true
@@ -43,7 +47,11 @@ android {
         debug {
             minifyEnabled = false
             versionNameSuffix = "-debug"
+<<<<<<< HEAD
             // applicationIdSuffix ".debug"  // Removed to allow debug builds to replace release builds
+=======
+            applicationIdSuffix ".debug"
+>>>>>>> upstream/master
             resValue "string", "app_name", "Tiny Tiny RSS (debug)"
             manifestPlaceholders = [
                 appIcon: "@mipmap/ic_launcher_variant"
@@ -56,6 +64,10 @@ android {
 
         release {
             minifyEnabled = false
+<<<<<<< HEAD
+=======
+            versionNameSuffix = "-unsigned"
+>>>>>>> upstream/master
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.signed
@@ -67,9 +79,13 @@ android {
             minifyEnabled = false
             versionNameSuffix = "-signed"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+<<<<<<< HEAD
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.signed
             }
+=======
+            signingConfig = signingConfigs.signed
+>>>>>>> upstream/master
             matchingFallbacks = ['release']
         }
 
@@ -77,9 +93,13 @@ android {
             minifyEnabled = false
             versionNameSuffix = "-signed-branch"
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+<<<<<<< HEAD
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.signed
             }
+=======
+            signingConfig = signingConfigs.signed
+>>>>>>> upstream/master
             applicationIdSuffix = ".branch"
             resValue "string", "app_name", "Tiny Tiny RSS (dev)"
             manifestPlaceholders = [
@@ -91,6 +111,7 @@ android {
     namespace = 'org.fox.ttrss'
     buildFeatures {
         buildConfig = true
+<<<<<<< HEAD
     }
     lint {
         abortOnError = true
@@ -102,10 +123,12 @@ android {
         variant.outputs.all {
             outputFileName = "ttrss-${variant.versionName}${variant.buildType.versionNameSuffix}.apk"
         }
+=======
+>>>>>>> upstream/master
     }
     lint {
-        abortOnError true
-        checkReleaseBuilds false
+        abortOnError = true
+        checkReleaseBuilds = false
         disable 'MissingTranslation', 'ExtraTranslation', 'MissingQuantity', 'ImpliedQuantity'
         enable 'SuspiciousIndentation'
     }
