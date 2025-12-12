@@ -1,0 +1,43 @@
+name: Validate PR
+
+on:
+  pull_request:
+    branches: [master]
+    paths-ignore:
+    - '.github/**'
+    - 'utils/**'
+    - '.*'
+    - '*.md'
+
+
+permissions:
+  contents: read
+
+
+concurrency:
+  group: validate-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Set up Java
+      uses: actions/setup-java@v5
+      with:
+        java-version: 17
+        distribution: temurin
+
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v5
+
+    - name: Run checks and build debug APK
+      run: ./gradlew --no-daemon check assembleDebug
+
+    - name: Generate lint summary
+      if: always()
+      run: bash .github/scripts/generate-lint-summary.sh
