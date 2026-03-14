@@ -56,7 +56,7 @@ android {
 
         release {
             minifyEnabled = false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.signed
             }
@@ -66,7 +66,7 @@ android {
         signed {
             minifyEnabled = false
             versionNameSuffix = "-signed"
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.signed
             }
@@ -76,7 +76,7 @@ android {
         branch {
             minifyEnabled = false
             versionNameSuffix = "-signed-branch"
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.signed
             }
@@ -91,17 +91,7 @@ android {
     namespace = 'org.fox.ttrss'
     buildFeatures {
         buildConfig = true
-    }
-    lint {
-        abortOnError = true
-        checkReleaseBuilds = false
-        disable 'MissingTranslation', 'ExtraTranslation', 'MissingQuantity', 'ImpliedQuantity'
-        enable 'SuspiciousIndentation'
-    }
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "ttrss-${variant.versionName}${variant.buildType.versionNameSuffix}.apk"
-        }
+        resValues = true
     }
     lint {
         abortOnError = true
@@ -168,13 +158,13 @@ def getVersion() {
 
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.3.2'
-    implementation 'org.jsoup:jsoup:1.21.2'
+    implementation 'org.jsoup:jsoup:1.22.1'
     implementation 'com.bogdwellers:pinchtozoom:0.1'
     implementation 'com.github.bumptech.glide:glide:5.0.5'
     implementation 'com.github.bumptech.glide:okhttp3-integration:5.0.5'
     annotationProcessor 'com.github.bumptech.glide:compiler:5.0.5'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.activity:activity:1.12.1'
+    implementation 'androidx.activity:activity:1.12.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.appcompat:appcompat-resources:1.7.1'

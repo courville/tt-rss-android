@@ -186,7 +186,7 @@
     <string name="unsubscribe">取消订阅</string>
     <string name="unsubscribe_from_prompt">取消%1$s个订阅吗？</string>
     <string name="use_volume_keys">使用音量键</string>
-    <string name="use_volume_keys_long">使用硬件音量按钮切换文章</string>
+    <string name="use_volume_keys_long">使用硬件音量按钮切换文章和滚动标题</string>
     <string name="video_player_share">分享视频</string>
     <string name="offline_switch_failed">准备离线模式失败</string>
     <string name="offline_media_cache_enabled">缓存媒体文件</string>
@@ -269,7 +269,7 @@
     <string name="open_on_startup">启动时打开</string>
     <string name="headlines_display_mode">设置显示模式</string>
     <string name="catchup_dialog_title_search">将%1$s中的搜索结果标记为已读？</string>
-    <string name="blank">" "</string>
+    <string name="blank">空白</string>
     <string name="article_edit_note">编辑注释</string>
     <string name="error_success">操作已完成</string>
     <string name="error_bad_request">错误：400错误请求</string>
@@ -282,4 +282,8 @@
     <string name="expand_special_cat">展开特殊类别</string>
     <string name="crash_dialog_text_email">抱歉，Tiny Tiny RSS已经崩溃。通过电子邮件提交崩溃报告？</string>
     <string name="window_secure_mode_summary">禁用屏幕截图并隐藏非安全显示器上的窗口内容</string>
+    <string name="headline_display_mode_split">分割视图：图左文右</string>
+    <string name="confirm_catchup_above_title">将 \"%1s“上面的所有文章标记为已读吗？</string>
+    <string name="article_enable_javascript">启用 JavaScript</string>
+    <string name="article_enable_javascript_summary">一些基于 iframe 的视频播放器需要 JavaScript，请谨慎启用</string>
 </resources>

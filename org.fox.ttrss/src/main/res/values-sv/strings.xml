@@ -234,4 +234,5 @@
     <string name="logcat_title">Loggvisare</string>
     <string name="cat_labels">Etiketter</string>
     <string name="cat_uncategorized">Okategoriserade</string>
+    <string name="blank">Blank</string>
 </resources>

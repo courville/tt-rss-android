@@ -169,7 +169,7 @@
     <string name="crash_dialog_text">很不幸，Tiny Tiny RSS 已停止運行。您願意提交當機報告到 tt-rss.org 嗎？</string>
     <string name="trial_expired">試用已過期</string>
     <string name="trial_expired_message">請購買並解鎖完整版本以繼續使用 Tiny Tiny RSS 。</string>
-    <string name="use_volume_keys_long">使用硬體音量按鈕切換文章</string>
+    <string name="use_volume_keys_long">使用硬體音量按鈕瀏覽文章並捲動標題</string>
     <string name="browse_cats_like_feeds_summary">可使用類別情境選單覆寫此設定</string>
     <string name="reading">閱讀</string>
     <string name="accel_webview_summary">如果出現閃爍或畫面故障請停用</string>
@@ -266,7 +266,7 @@
     <string name="dont_open_anything">無</string>
     <string name="open_on_startup">啟動時開啟</string>
     <string name="dialog_offline_prompt">登入失敗。針測到離線資料，是否進入離線模式？</string>
-    <string name="blank">" "</string>
+    <string name="blank">留空</string>
     <string name="headlines_display_mode">設定顯示模式</string>
     <string name="catchup_dialog_title_search">將 %1$s 的搜尋結果標示為已讀取嗎？</string>
     <string name="article_enable_javascript">啟用 JavaScript</string>
