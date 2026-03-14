@@ -115,9 +115,20 @@ android {
         disable 'MissingTranslation', 'ExtraTranslation', 'MissingQuantity', 'ImpliedQuantity'
         enable 'SuspiciousIndentation'
     }
-    applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "ttrss-${variant.versionName}${variant.buildType.versionNameSuffix}.apk"
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.outputs.forEach { output ->
+            def buildType = variant.buildType
+            def suffix = ""
+            android.buildTypes.each {
+                if (it.name == buildType) {
+                    suffix = it.versionNameSuffix ?: ""
+                }
+            }
+            def baseVersion = getVersion()
+            output.outputFileName.set("ttrss-${baseVersion}${suffix}.apk")
         }
     }
 }
@@ -127,7 +138,7 @@ def getGitVersionCode() {
 }
 
 def getGitTimestampFormatted() {
-    return new Date(getGitTimestamp()).format('YY.MM')
+    return new Date(getGitTimestamp()).format('yy.MM')
 }
 
 def runGit(String... args) {
