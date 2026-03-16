@@ -335,7 +335,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             } else if (m_searchQuery != null && !m_searchQuery.isEmpty()) {
                 skip = numAll;
             } else if ("adaptive".equals(viewMode)) {
-                skip = numUnread > 0 ? numUnread : numAll;
+                skip = numAll;
             } else {
                 skip = numAll;
             }
