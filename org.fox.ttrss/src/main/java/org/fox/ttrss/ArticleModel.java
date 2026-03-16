@@ -285,7 +285,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
                                 Log.d(TAG, "duplicate:" + article);
                             }
 
-                        if (m_firstIdChanged) {
+                        if (m_firstIdChanged && !m_append) {
                             Log.d(TAG, "first id changed, disabling lazy load");
                             m_lazyLoadEnabled = false;
                         }
