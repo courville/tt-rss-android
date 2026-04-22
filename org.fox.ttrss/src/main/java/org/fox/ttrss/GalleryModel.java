@@ -3,8 +3,6 @@ package org.fox.ttrss;
 import android.app.Application;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -30,9 +28,9 @@ public class GalleryModel extends AndroidViewModel {
     private static final String TAG = GalleryModel.class.getSimpleName();
 
     private MutableLiveData<List<GalleryEntry>> m_items = new MutableLiveData<>(new ArrayList<>());
-    private MutableLiveData<Integer> m_checkProgress = new MutableLiveData<>(Integer.valueOf(0));
-    private MutableLiveData<Integer> m_itemsToCheck = new MutableLiveData<>(Integer.valueOf(0));
-    private MutableLiveData<Boolean> m_isChecking = new MutableLiveData<>(Boolean.valueOf(false));
+    private MutableLiveData<Integer> m_checkProgress = new MutableLiveData<>(0);
+    private MutableLiveData<Integer> m_itemsToCheck = new MutableLiveData<>(0);
+    private MutableLiveData<Boolean> m_isChecking = new MutableLiveData<>(false);
 
     public GalleryModel(@NonNull Application application) {
         super(application);
@@ -43,7 +41,6 @@ public class GalleryModel extends AndroidViewModel {
     }
 
     private ExecutorService m_executor = Executors.newSingleThreadExecutor();
-    private Handler m_mainHandler = new Handler(Looper.getMainLooper());
 
     public LiveData<Integer> getItemsToCheck() {
         return m_itemsToCheck;

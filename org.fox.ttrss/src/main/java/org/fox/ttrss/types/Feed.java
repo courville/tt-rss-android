@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 
 import org.fox.ttrss.R;
 
+import java.util.Objects;
+
 public class Feed implements Comparable<Feed>, Parcelable {
     public static final int TYPE_SENTINEL = -10000;
     public static final int TYPE_GOBACK = -10001;
@@ -110,18 +112,18 @@ public class Feed implements Comparable<Feed>, Parcelable {
 
     @Override
     public boolean equals(Object other) {
-        if (other == null)
-            return false;
-
         if (other == this)
             return true;
 
-        if (this.getClass() != other.getClass())
+        if (!(other instanceof Feed feed))
             return false;
 
-        Feed feed = (Feed) other;
-
         return feed.id == this.id && this.is_cat == feed.is_cat;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id, this.is_cat);
     }
 
     @NonNull
@@ -183,10 +185,12 @@ public class Feed implements Comparable<Feed>, Parcelable {
     @SuppressWarnings("rawtypes")
     public static final Parcelable.Creator CREATOR =
             new Parcelable.Creator() {
+                @Override
                 public Feed createFromParcel(Parcel in) {
                     return new Feed(in);
                 }
 
+                @Override
                 public Feed[] newArray(int size) {
                     return new Feed[size];
                 }

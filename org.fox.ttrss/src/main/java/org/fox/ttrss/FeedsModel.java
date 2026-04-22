@@ -34,17 +34,18 @@ import java.util.stream.Collectors;
 
 public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller {
     private static final String TAG = FeedsModel.class.getSimpleName();
+    private static final Gson GSON = new Gson();
+    private static final Type FEED_LIST_TYPE = new TypeToken<List<Feed>>() {}.getType();
     protected MutableLiveData<List<Feed>> m_feeds = new MutableLiveData<>(new ArrayList<>());
-    protected MutableLiveData<Integer> m_loadingProgress = new MutableLiveData<>(Integer.valueOf(0));
-    protected MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(Long.valueOf(0));
-    protected MutableLiveData<Boolean> m_isLoading = new MutableLiveData<>(Boolean.valueOf(false));
+    protected MutableLiveData<Integer> m_loadingProgress = new MutableLiveData<>(0);
+    protected MutableLiveData<Long> m_lastUpdate = new MutableLiveData<>(0L);
+    protected MutableLiveData<Boolean> m_isLoading = new MutableLiveData<>(false);
 
     protected Feed m_feed;
 
     protected ExecutorService m_executor = Executors.newSingleThreadExecutor();
     protected Handler m_mainHandler = new Handler(Looper.getMainLooper());
 
-    private final int m_responseCode = 0;
     protected String m_responseMessage;
     private int m_apiStatusCode = 0;
     private String m_lastErrorMessage;
@@ -63,6 +64,10 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
     @Override
     public void setStatusCode(int statusCode) {
         m_apiStatusCode = statusCode;
+    }
+
+    public int getStatusCode() {
+        return m_apiStatusCode;
     }
 
     @Override
@@ -112,13 +117,19 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
                 JsonArray content = result.getAsJsonArray();
                 if (content != null) {
 
-                    Type listType = new TypeToken<List<Feed>>() {
-                    }.getType();
-
-                    List<Feed> feedsJson = new Gson().fromJson(content, listType);
+                    List<Feed> feedsJson = GSON.fromJson(content, FEED_LIST_TYPE);
 
                     // seems to be necessary evil because of deserialization
                     feedsJson = feedsJson.stream().peek(Feed::fixNullFields).collect(Collectors.toList());
+
+                    // replace server-provided titles with localized strings for special feeds
+                    for (Feed f : feedsJson) {
+                        try {
+                            f.title = getApplication().getString(Feed.getSpecialFeedTitleId(f.id, f.is_cat));
+                        } catch (IllegalArgumentException ignored) {
+                            // not a special feed, keep server-provided title
+                        }
+                    }
 
                     if (unreadOnly && m_feed.id != Feed.CAT_SPECIAL)
                         feedsJson = feedsJson.stream()
@@ -227,12 +238,12 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
     }
 
     static class SpecialOrderComparator implements Comparator<Feed> {
-        static List<Integer> order = Arrays.asList(Feed.ALL_ARTICLES, Feed.FRESH, Feed.MARKED,
+        private static final List<Integer> order = Arrays.asList(Feed.ALL_ARTICLES, Feed.FRESH, Feed.MARKED,
                 Feed.PUBLISHED, Feed.ARCHIVED, Feed.RECENTLY_READ);
 
         @Override
         public int compare(Feed a, Feed b) {
-            return Integer.valueOf(order.indexOf(a.id)).compareTo(order.indexOf(b.id));
+            return Integer.compare(order.indexOf(a.id), order.indexOf(b.id));
         }
     }
 

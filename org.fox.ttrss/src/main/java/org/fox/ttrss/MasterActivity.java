@@ -242,6 +242,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         }
     }
 
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
@@ -330,7 +331,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
             int selectedIndex = 0;
 
             for (CharSequence tmp : sortNames) {
-                if (tmp.equals(currentMode)) {
+                if (currentMode.contentEquals(tmp)) {
                     selectedIndex = i;
                     break;
                 }
@@ -397,6 +398,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         invalidateOptionsMenu();
     }
 
+    @Override
     public void onArticleSelected(Article article) {
         Article articleClone = new Article(article);
 
@@ -465,6 +467,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
     public void unsubscribeFeed(final Feed feed) {
         ApiRequest req = new ApiRequest(getApplicationContext()) {
+            @Override
             protected void onPostExecute(JsonElement result) {
                 refresh();
             }

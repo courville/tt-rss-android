@@ -286,4 +286,5 @@
     <string name="confirm_catchup_above_title">将 \"%1s“上面的所有文章标记为已读吗？</string>
     <string name="article_enable_javascript">启用 JavaScript</string>
     <string name="article_enable_javascript_summary">一些基于 iframe 的视频播放器需要 JavaScript，请谨慎启用</string>
+    <string name="headline_display_mode_compact_feed_images">紧凑 (订阅源图片)</string>
 </resources>

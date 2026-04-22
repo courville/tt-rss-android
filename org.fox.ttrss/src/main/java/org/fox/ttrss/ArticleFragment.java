@@ -31,10 +31,12 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 // TODO: add ability to update already rendered contents from article somehow (to refresh note, etc)
 public class ArticleFragment extends androidx.fragment.app.Fragment {
     private static final String TAG = ArticleFragment.class.getSimpleName();
+    private static final Pattern IMAGE_TAG_PATTERN = Pattern.compile(".*?<img[^>+].*?");
 
     private SharedPreferences m_prefs;
     protected Article m_article;
@@ -233,6 +235,14 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
 
                 return false;
             }
+
+            @Override
+            public void onScaleChanged(WebView view, float oldScale, float newScale) {
+                super.onScaleChanged(view, oldScale, newScale);
+                if (m_web instanceof ZoomableNestedScrollWebView) {
+                    ((ZoomableNestedScrollWebView) m_web).setCurrentScale(newScale);
+                }
+            }
         });
 
         m_web.setOnLongClickListener(v -> {
@@ -259,7 +269,9 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
         Log.d(TAG, "renderContent: " + m_article.title);
 
         WebSettings ws = m_web.getSettings();
-        ws.setSupportZoom(false);
+        ws.setSupportZoom(true);
+        ws.setBuiltInZoomControls(true);
+        ws.setDisplayZoomControls(false);
 
         TypedValue tvTextColor = new TypedValue();
         getActivity().getTheme().resolveAttribute(R.attr.colorOnSurface, tvTextColor, true);
@@ -296,7 +308,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
         StringBuilder content = new StringBuilder("<html>" +
                 "<head>" +
                 "<meta content=\"text/html; charset=utf-8\" http-equiv=\"content-type\">" +
-                "<meta name=\"viewport\" content=\"width=device-width, user-scalable=no\" />" +
+                "<meta name=\"viewport\" content=\"width=device-width\" />" +
                 "<style type=\"text/css\">" +
                 "body { padding : 0px; margin : " + margin8dp + "px; line-height : 1.3; word-wrap: break-word; }" +
                 "h1, h2, h3, h4, h5, h6 { line-height: 1; text-align: initial; }" +
@@ -312,7 +324,7 @@ public class ArticleFragment extends androidx.fragment.app.Fragment {
 
         if (m_article.attachments != null && !m_article.attachments.isEmpty()) {
             String flatContent = articleContent.replaceAll("[\r\n]", "");
-            boolean hasImages = flatContent.matches(".*?<img[^>+].*?");
+            boolean hasImages = IMAGE_TAG_PATTERN.matcher(flatContent).matches();
 
             for (Attachment a : m_article.attachments) {
                 if (a.content_type != null && a.content_url != null) {

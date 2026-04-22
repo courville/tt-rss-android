@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -16,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.transition.Fade;
 import android.transition.Transition;
@@ -173,6 +175,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     }
 
     // all onContextItemSelected are invoked in sequence so we might get a context menu for headlines, etc
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
                 .getMenuInfo();
@@ -253,7 +256,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 
-        if ("HL_COMPACT".equals(headlineMode) || "HL_COMPACT_NOIMAGES".equals(headlineMode))
+        if ("HL_COMPACT".equals(headlineMode) || "HL_COMPACT_NOIMAGES".equals(headlineMode) || "HL_COMPACT_FEED_IMAGES".equals(headlineMode))
             m_compactLayoutMode = true;
 
         if ("HL_SPLIT".equals(headlineMode))
@@ -282,7 +285,12 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         m_adapter = new ArticleListAdapter();
         m_list.setAdapter(m_adapter);
 
-        if (savedInstanceState == null && Application.getArticles().isEmpty()) {
+        // Refresh whenever the in-memory article list is empty. Previously this
+        // was gated on `savedInstanceState == null` to avoid double-fetching on
+        // rotation, but that also suppressed the refresh after process death,
+        // when Android restores the activity with a saved Bundle even though
+        // ArticleModel has been reconstructed empty.
+        if (Application.getArticles().isEmpty()) {
             refresh(false);
         }
 
@@ -381,7 +389,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
                         m_readArticles.clear();
 
-                        new Handler().postDelayed(() -> m_activity.refresh(false), 100);
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> m_activity.refresh(false), 100);
                     }
                 }
             }
@@ -424,8 +432,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                     final Feed feedToLoad = m_feed;
 
                     // this has to be dispatched delayed, consequent adapter updates are forbidden in scroll handler
-                    new Handler().postDelayed(() -> {
-                        if (feedToLoad == m_feed) {
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        if (feedToLoad.equals(m_feed)) {
                             refresh(true);
                         }
                     }, 250);
@@ -471,8 +479,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                         final Feed feedToLoad = m_feed;
 
                         // this has to be dispatched delayed, consequent adapter updates are forbidden in scroll handler
-                        new Handler().postDelayed(() -> {
-                            if (feedToLoad == m_feed) {
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            if (feedToLoad.equals(m_feed)) {
                                 refresh(true);
                             }
                         }, 250);
@@ -824,7 +832,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
                     if (position != -1) {
                         Article article = m_adapter.getItem(position);
-                        openGalleryForType(article, holder, holder.flavorImageView);
+                        openGalleryForType(article);
                     }
                 });
             }
@@ -957,7 +965,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                     if (position != -1) {
                         Article article = getItem(position);
 
-                        openGalleryForType(article, holder, holder.textImage);
+                        openGalleryForType(article);
                     }
 
                     return true;
@@ -1041,6 +1049,8 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                             break;
                         case SCORE:
                             updateScoreView(article, holder);
+                            break;
+                        case NOTE:
                             break;
                     }
                 }
@@ -1154,7 +1164,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
 					holder.flavorVideoView.setOnLongClickListener(v -> {
                         releaseSurface();
-                        openGalleryForType(article, holder, holder.flavorImageView);
+                        openGalleryForType(article);
                         return true;
                     });
 
@@ -1245,7 +1255,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                     });
 
 				} else {
-					holder.flavorImageView.setOnClickListener(view -> openGalleryForType(article, holder, holder.flavorImageView));
+					holder.flavorImageView.setOnClickListener(view -> openGalleryForType(article));
 				} */
             }
         }
@@ -1499,15 +1509,35 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             } else {
                 final Drawable textDrawable = m_drawableBuilder.build(tmp, m_colorGenerator.getColor(article.title));
 
-                holder.textImage.setImageDrawable(textDrawable);
+                String headlineMode = m_prefs.getString("headline_mode", "HL_DEFAULT");
 
-                if (!canShowFlavorImage() || article.flavorImage == null) {
+                if ("HL_COMPACT_FEED_IMAGES".equals(headlineMode) && article.feed_id > 0) {
+                    String faviconUrl = m_prefs.getString("ttrss_url", "").trim()
+                            + "/public.php?op=feed_icon&id=" + article.feed_id;
+
+                    // use a solid background so transparent parts of the favicon
+                    // don't reveal the underlying letter drawable
+                    final Drawable faviconBackground = new ColorDrawable(m_colorSurface);
+
+                    holder.textImage.setImageDrawable(faviconBackground);
+
+                    Glide.with(HeadlinesFragment.this)
+                            .load(faviconUrl)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .placeholder(faviconBackground)
+                            .error(R.drawable.baseline_rss_feed_24)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .skipMemoryCache(false)
+                            .into(holder.textImage);
+                } else if (!canShowFlavorImage() || article.flavorImage == null) {
                     holder.textImage.setImageDrawable(textDrawable);
                 } else {
+                    holder.textImage.setImageDrawable(textDrawable);
                     Glide.with(HeadlinesFragment.this)
                             .load(article.flavorImageUri)
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .placeholder(textDrawable)
+                            .error(R.drawable.baseline_rss_feed_24)
                             .thumbnail(0.5f)
                             .apply(RequestOptions.circleCropTransform())
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -1519,7 +1549,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             }
         }
 
-        private void openGalleryForType(final Article article, final ArticleViewHolder holder, final View transitionView) {
+        private void openGalleryForType(final Article article) {
             //Log.d(TAG, "openGalleryForType: " + article + " " + holder + " " + transitionView);
 
             if (article.flavorImage != null) {
@@ -1659,7 +1689,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 Log.d(TAG, "marking articles as read, count=" + m_readArticles.size());
                 m_activity.setArticlesUnread(new ArrayList<>(m_readArticles), Article.UPDATE_SET_FALSE);
                 m_readArticles.clear();
-                new Handler().postDelayed(() -> m_activity.refresh(false), 100);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> m_activity.refresh(false), 100);
             }
         }
     }

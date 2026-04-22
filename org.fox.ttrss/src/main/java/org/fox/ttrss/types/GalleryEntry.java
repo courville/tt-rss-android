@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class GalleryEntry implements Serializable, Parcelable {
     @Override
@@ -14,10 +15,12 @@ public class GalleryEntry implements Serializable, Parcelable {
     @SuppressWarnings("rawtypes")
     public static final Parcelable.Creator CREATOR =
             new Parcelable.Creator() {
+                @Override
                 public GalleryEntry createFromParcel(Parcel in) {
                     return new GalleryEntry(in);
                 }
 
+                @Override
                 public GalleryEntry[] newArray(int size) {
                     return new GalleryEntry[size];
                 }
@@ -56,11 +59,16 @@ public class GalleryEntry implements Serializable, Parcelable {
         this.coverUrl = coverUrl;
     }
 
-    public boolean equals(GalleryEntry obj) {
-        if (obj.url != null && url != null) {
-            return obj.url.equals(url);
-        } else {
-            return super.equals(obj);
-        }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof GalleryEntry)) return false;
+        GalleryEntry other = (GalleryEntry) obj;
+        return Objects.equals(url, other.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return url != null ? url.hashCode() : 0;
     }
 }
