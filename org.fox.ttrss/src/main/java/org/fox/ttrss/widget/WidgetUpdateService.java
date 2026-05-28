@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -46,7 +45,6 @@ public class WidgetUpdateService extends JobIntentService {
         if (getWidgetCount(getApplicationContext()) == 0) {
             Log.d(TAG, "no widgets to work on, bailing out");
 
-            stopSelf();
             return;
         }
 
@@ -63,18 +61,13 @@ public class WidgetUpdateService extends JobIntentService {
                         Intent serviceIntent = new Intent(getApplicationContext(), WidgetUpdateService.class);
                         serviceIntent.putExtra("retryCount", retryCount + 1);
 
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            startForegroundService(serviceIntent);
-                        } else {
-                            startService(serviceIntent);
-                        }
+                        enqueueWork(getApplicationContext(), WidgetUpdateService.class, 0, serviceIntent);
 
                     }, 3 * 1000);
                 } else {
                     updateWidgets(-1, UPDATE_RESULT_ERROR_OTHER);
                 }
 
-                stopSelf();
                 return;
             }
 
@@ -156,8 +149,6 @@ public class WidgetUpdateService extends JobIntentService {
             updateWidgets(-1, UPDATE_RESULT_ERROR_OTHER);
         }
 
-        stopSelf();
-
     }
 
     private int getWidgetCount(Context context) {
@@ -187,8 +178,6 @@ public class WidgetUpdateService extends JobIntentService {
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget);
 
         updateWidgetsText(context, appWidgetManager, appWidgetIds, unread, resultCode);
-
-        if (resultCode != UPDATE_IN_PROGRESS) stopSelf();
     }
 
     private void updateWidgetsText(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds, int unread, int resultCode) {
