@@ -254,7 +254,7 @@ public class SubscribeActivity extends CommonShareActivity {
                 if (m_lastError != null && m_lastError != ApiCommon.ApiError.SUCCESS) {
                     toast(getErrorMessage());
                 } else {
-                    JsonArray content = result.getAsJsonArray();
+                    JsonArray content = result != null ? result.getAsJsonArray() : null;
 
                     if (content != null) {
                         final List<Feed> catsJson = GSON.fromJson(content, FEED_LIST_TYPE);

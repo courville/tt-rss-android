@@ -56,7 +56,7 @@ public class RootCategoriesModel extends FeedsModel {
                     Log.d(TAG, "got result=" + result);
 
                 try {
-                    JsonArray content = result.getAsJsonArray();
+                    JsonArray content = result != null ? result.getAsJsonArray() : null;
                     if (content != null) {
 
                         List<Feed> feedsJson = GSON.fromJson(content, FEED_LIST_TYPE);
@@ -102,7 +102,7 @@ public class RootCategoriesModel extends FeedsModel {
             boolean unreadOnly = m_prefs.getBoolean("show_unread_only", true);
 
             try {
-                JsonArray content = result.getAsJsonArray();
+                JsonArray content = result != null ? result.getAsJsonArray() : null;
                 if (content != null) {
 
                     List<Feed> feedsJson = GSON.fromJson(content, FEED_LIST_TYPE);
@@ -144,12 +144,15 @@ public class RootCategoriesModel extends FeedsModel {
                     feedsCombined.addAll(feedsJson);
 
                     m_feeds.postValue(feedsCombined);
+                } else {
+                    m_feeds.postValue(feedsCombined);
                 }
             } catch (Exception e) {
                 setLastError(ApiCommon.ApiError.OTHER_ERROR);
                 setLastErrorMessage(e.getMessage());
 
                 e.printStackTrace();
+                m_feeds.postValue(feedsCombined);
             }
 
             m_isLoading.postValue(false);
