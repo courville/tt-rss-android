@@ -114,7 +114,7 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
             boolean unreadOnly = m_prefs.getBoolean("show_unread_only", true);
 
             try {
-                JsonArray content = result.getAsJsonArray();
+                JsonArray content = result != null ? result.getAsJsonArray() : null;
                 if (content != null) {
 
                     List<Feed> feedsJson = GSON.fromJson(content, FEED_LIST_TYPE);
@@ -139,12 +139,15 @@ public class FeedsModel extends AndroidViewModel implements ApiCommon.ApiCaller 
                     sortFeeds(feedsJson, m_feed, null);
 
                     m_feeds.postValue(feedsJson);
+                } else {
+                    m_feeds.postValue(new ArrayList<>());
                 }
             } catch (Exception e) {
                 setLastError(ApiCommon.ApiError.OTHER_ERROR);
                 setLastErrorMessage(e.getMessage());
 
                 e.printStackTrace();
+                m_feeds.postValue(new ArrayList<>());
             }
 
             m_isLoading.postValue(false);
