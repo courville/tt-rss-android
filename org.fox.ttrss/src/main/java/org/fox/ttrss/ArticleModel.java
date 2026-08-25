@@ -323,7 +323,7 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             int numUnread = Math.toIntExact(getUnread(articles).size());
             int numAll = Math.toIntExact(articles.size());
 
-            if ("unread".equals(viewMode)) {
+            if ("unread".equals(viewMode) || m_feed.id == Feed.FRESH) {
                 skip = numUnread;
             } else {
                 skip = numAll;
