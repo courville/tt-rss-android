@@ -18,8 +18,8 @@ android {
         buildConfigField "long", "TIMESTAMP", System.currentTimeMillis() + "L"
         minSdkVersion 24
         //noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 35
-        compileSdkVersion = 36
+        targetSdkVersion 36
+        compileSdkVersion = 37
         versionCode = getGitVersionCode()
         versionName = getVersion()
         vectorDrawables.useSupportLibrary = true
