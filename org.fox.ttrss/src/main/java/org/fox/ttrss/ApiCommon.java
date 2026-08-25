@@ -230,10 +230,12 @@ public class ApiCommon {
                 return null;
             }
         } catch (javax.net.ssl.SSLPeerUnverifiedException e) {
+            Log.d(TAG, "performRequest: SSLPeerUnverifiedException: " + e.getMessage());
             caller.setLastError(ApiError.SSL_REJECTED);
             caller.setLastErrorMessage(e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
+            Log.d(TAG, "performRequest: IOException: " + e.getMessage());
             caller.setLastError(ApiError.IO_ERROR);
             caller.setLastErrorMessage(e.getMessage());
 
@@ -245,10 +247,12 @@ public class ApiCommon {
 
             e.printStackTrace();
         } catch (com.google.gson.JsonSyntaxException e) {
+            Log.d(TAG, "performRequest: JsonSyntaxException: " + e.getMessage());
             caller.setLastError(ApiError.PARSE_ERROR);
             caller.setLastErrorMessage(e.getMessage());
             e.printStackTrace();
         } catch (Exception e) {
+            Log.d(TAG, "performRequest: Exception: " + e.getMessage());
             caller.setLastError(ApiError.OTHER_ERROR);
             caller.setLastErrorMessage(e.getMessage());
             e.printStackTrace();
