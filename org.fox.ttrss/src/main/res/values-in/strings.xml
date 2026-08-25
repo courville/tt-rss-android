@@ -284,4 +284,7 @@
     <string name="expand_special_cat">Perluas Kategori Khusus</string>
     <string name="article_enable_javascript">Aktifkan JavaScript</string>
     <string name="article_enable_javascript_summary">Beberapa pemutar video berbasis iframe memerlukan JavaScript, aktifkan dengan hati-hati</string>
+    <string name="move_between_articles">Beralih antar artikel</string>
+    <string name="move_between_articles_long">Gulir artikel dengan menggeser ke kiri dan ke kanan</string>
+    <string name="headline_display_mode_compact_feed_images">Ringkas (gambar umpan)</string>
 </resources>

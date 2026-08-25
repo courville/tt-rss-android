@@ -295,4 +295,7 @@
     <string name="confirm_catchup_above_title">Отметить все статьи в «%1s» как прочитанные?</string>
     <string name="window_secure_mode">Режим безопасного окна</string>
     <string name="headline_display_mode_split">Раздельный вид: картинка слева, текст справа</string>
+    <string name="move_between_articles">Перемещение между статьями</string>
+    <string name="move_between_articles_long">Навигация по статьям свайпами влево/вправо</string>
+    <string name="headline_display_mode_compact_feed_images">Компактный (изображения в ленте)</string>
 </resources>

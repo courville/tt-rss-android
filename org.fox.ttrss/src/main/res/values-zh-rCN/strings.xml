@@ -287,4 +287,6 @@
     <string name="article_enable_javascript">启用 JavaScript</string>
     <string name="article_enable_javascript_summary">一些基于 iframe 的视频播放器需要 JavaScript，请谨慎启用</string>
     <string name="headline_display_mode_compact_feed_images">紧凑 (订阅源图片)</string>
+    <string name="move_between_articles">在文章间移动</string>
+    <string name="move_between_articles_long">左右滑动切换文章</string>
 </resources>

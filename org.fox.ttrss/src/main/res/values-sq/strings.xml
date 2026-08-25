@@ -283,4 +283,6 @@
     <string name="prefs_enable_image_downsampling_long">I kërkon pjesës së pasme të shërbejë figura me cilësi më të ulët, në qoftë jashtë Wi-Fi. Lyp një shtojcë (ttrss-api-resize)</string>
     <string name="headline_display_mode_split">Pamje e ndarë: figura majtas, teksti djathtas</string>
     <string name="headline_display_mode_compact_feed_images">Kompakte (sill figura)</string>
+    <string name="move_between_articles_long">Lëvizni nëpër artikuj me fërkim gishti majtas dhe djathtas</string>
+    <string name="move_between_articles">Lëvizni nëpër artikuj</string>
 </resources>

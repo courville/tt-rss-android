@@ -339,4 +339,7 @@
     <string name="article_enable_javascript">Włącz JavaScript</string>
     <string name="article_enable_javascript_summary">Niektóre odtwarzacze wideo bazujące na iframe wymagają JavaScript, włącz zachowując ostrożność</string>
     <string name="blank">Pusty</string>
+    <string name="move_between_articles">Poruszaj się między artykułami</string>
+    <string name="move_between_articles_long">Nawiguj pomiędzy artykułami przesuwając w lewo lub w prawo</string>
+    <string name="headline_display_mode_compact_feed_images">Kompaktowy (zdjęcia kanału)</string>
 </resources>

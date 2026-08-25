@@ -2,7 +2,7 @@
 <resources>
     <string name="login_in_progress">正在登入……</string>
     <string name="login">登入</string>
-    <string name="debugging">除錯</string>
+    <string name="debugging">偵錯</string>
     <string name="default_url">http://example.domain/tt-rss/</string>
     <string name="preferences">設定</string>
     <string name="http_authentication">HTTP 驗證</string>
@@ -160,7 +160,7 @@
     <string name="error_while_subscribing">訂閱時發生錯誤。</string>
     <string name="error_api_disabled">錯誤：請在 tt-rss 設定中啟用 API 存取</string>
     <string name="prefs_widget_show_fresh">顯示最近更新的文章</string>
-    <string name="prefs_open_fresh_on_startup">啟動時開啟最近更新的文章列表</string>
+    <string name="prefs_open_fresh_on_startup">啟動時開啟最近更新的文章清單</string>
     <string name="prefs_always_downsample_images">一律調整影像大小</string>
     <string name="prefs_enable_image_downsampling">自動調整影像大小</string>
     <string name="quick_preview">快速預覽</string>
@@ -199,7 +199,7 @@
     <string name="tasker_save_and_close">儲存並關閉</string>
     <string name="toggle_sort_order">切換由舊到新</string>
     <string name="prefs_enable_fab">啟用浮動動作按鈕</string>
-    <string name="video_player_share">分享視訊</string>
+    <string name="video_player_share">分享影片</string>
     <string name="prefs_opening_links">開啟連結</string>
     <string name="pref_headlines_swipe_to_dismiss">滑動即可關閉</string>
     <string name="prefs_always_downsample_images_long">即使已連上 Wi-Fi 網路</string>
@@ -232,7 +232,7 @@
     <string name="prefs_headline_images_wifi_only">僅透過 Wi-Fi 顯示影像</string>
     <string name="prefs_headline_request_size">請求多少標題</string>
     <string name="pref_headlines_swipe_to_dismiss_long">停用標題情境選單</string>
-    <string name="pref_headlines_show_content_long">在標題列表中顯示內容預覽</string>
+    <string name="pref_headlines_show_content_long">在標題清單中顯示內容預覽</string>
     <string name="article_set_note">發布並加入備註</string>
     <string name="pref_headlines_mark_read_scroll_long">捲動經過標題時，將被標示為已讀取</string>
     <string name="prefs_enable_image_downsampling_long">如果未連上 Wi-Fi 網路，則要求後端對影像進行縮小取樣。需要擴充套件（ttrss-api-resize）</string>
@@ -246,7 +246,7 @@
     <string name="prefs_use_custom_tabs">使用快速預覽</string>
     <string name="confirm_catchup_above">將文章標示為已讀取？</string>
     <string name="prefs_inline_video_player">實驗性。輕觸並按住即可另外開啟播放器</string>
-    <string name="prefs_inline_video_player_title">行內視訊播放器</string>
+    <string name="prefs_inline_video_player_title">行內影片播放器</string>
     <string name="prefs_headline_request_size_long">慢速連線時使用較低的數值</string>
     <string name="check_for_updates">檢查更新</string>
     <string name="check_for_updates_summary">啟動時檢查應用程式版本更新</string>
@@ -277,4 +277,15 @@
     <string name="headlines_set_display_mode">設定顯示模式</string>
     <string name="enable_dynamic_colors">動態顏色</string>
     <string name="expand_special_cat">展開特殊類別</string>
+    <string name="move_between_articles">在文章之間移動</string>
+    <string name="move_between_articles_long">左右滑動以瀏覽文章</string>
+    <string name="headline_display_mode_compact_feed_images">精簡（摘要影像）</string>
+    <string name="headline_display_mode_split">分割檢視：左圖右文</string>
+    <string name="article_enable_javascript_summary">部分基於 iframe 的影片播放器需要 JavaScript，請謹慎啟用</string>
+    <string name="window_secure_mode">安全視窗模式</string>
+    <string name="window_secure_mode_summary">禁用螢幕截圖並在非安全顯示器上隱藏視窗內容</string>
+    <string name="confirm_catchup_above_title">將「%1s」以上的所有文章標記為已讀？</string>
+    <string name="enable_icon_tinting_summary">如果您無法輕易辨識圖示顏色，請停用此功能</string>
+    <string name="enable_dynamic_colors_summary">根據您的裝置顏色設定為介面著色</string>
+    <string name="enable_icon_tinting">啟用圖示著色</string>
 </resources>

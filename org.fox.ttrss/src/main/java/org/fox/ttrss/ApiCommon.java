@@ -46,6 +46,14 @@ public class ApiCommon {
     private static final Gson GSON = new Gson();
     private static final MediaType TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
 
+    private static final OkHttpClient CLIENT = new OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(new RetryInterceptor())
+            .addNetworkInterceptor(createInterceptor())
+            .build();
+
     public interface ApiCaller {
         void setStatusCode(int statusCode);
 
@@ -123,11 +131,6 @@ public class ApiCommon {
     static JsonElement performRequest(Context context, @NonNull HashMap<String, String> m_params,
                                       @NonNull ApiCommon.ApiCaller caller) {
         try {
-            if (!ApiCommon.isNetworkAvailable(context)) {
-                caller.setLastError(ApiError.NETWORK_UNAVAILABLE);
-                return null;
-            }
-
             SharedPreferences m_prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
             boolean m_transportDebugging = m_prefs.getBoolean("transport_debugging", false);
@@ -140,6 +143,7 @@ public class ApiCommon {
             Request.Builder requestBuilder = new Request.Builder()
                     .url(apiUrl)
                     .header("User-Agent", getUserAgent(context))
+                    .tag(ApiCaller.class, caller)
                     .post(RequestBody.create(TYPE_JSON, payload));
 
             String httpLogin = m_prefs.getString("http_login", "").trim();
@@ -153,96 +157,78 @@ public class ApiCommon {
 
             Request request = requestBuilder.build();
 
-            ResponseProgressListener listener = new ResponseProgressListener() {
-                @Override
-                public void update(HttpUrl url, long bytesRead, long contentLength) {
-                    // Log.d(TAG, "[progress] " + url + " " + bytesRead + " of " + contentLength);
+            try (Response response = CLIENT.newCall(request).execute()) {
 
-                    if (contentLength > 0)
-                        caller.notifyProgress((int) (bytesRead * 100f / contentLength));
+                if (response.isSuccessful()) {
+                    String payloadReceived = response.body().string();
+
+                    if (m_transportDebugging) Log.d(TAG, "<<< " + payloadReceived);
+
+                    JsonElement result = JsonParser.parseString(payloadReceived);
+                    JsonObject resultObj = result.getAsJsonObject();
+
+                    int statusCode = resultObj.get("status").getAsInt();
+
+                    caller.setStatusCode(statusCode);
+
+                    switch (statusCode) {
+                        case API_STATUS_OK:
+                            caller.setLastError(ApiError.SUCCESS);
+                            return result.getAsJsonObject().get("content");
+                        case API_STATUS_ERR:
+                            JsonObject contentObj = resultObj.get("content").getAsJsonObject();
+                            String error = contentObj.get("error").getAsString();
+
+                            switch (error) {
+                                case "LOGIN_ERROR":
+                                case "NOT_LOGGED_IN":
+                                    caller.setLastError(ApiError.LOGIN_FAILED);
+                                    break;
+                                case "API_DISABLED":
+                                    caller.setLastError(ApiError.API_DISABLED);
+                                    break;
+                                case "INCORRECT_USAGE":
+                                    caller.setLastError(ApiError.API_INCORRECT_USAGE);
+                                    break;
+                                case "UNKNOWN_METHOD":
+                                    caller.setLastError(ApiError.API_UNKNOWN_METHOD);
+                                    break;
+                                default:
+                                    Log.d(TAG, "Unknown API error: " + error);
+                                    caller.setLastErrorMessage(error);
+                                    caller.setLastError(ApiError.API_UNKNOWN);
+                                    break;
+                            }
+                    }
+
+                } else {
+                    switch (response.code()) {
+                        case 400:
+                            caller.setLastError(ApiError.HTTP_BAD_REQUEST);
+                            break;
+                        case 401:
+                            caller.setLastError(ApiError.HTTP_UNAUTHORIZED);
+                            break;
+                        case 403:
+                            caller.setLastError(ApiError.HTTP_FORBIDDEN);
+                            break;
+                        case 404:
+                            caller.setLastError(ApiError.HTTP_NOT_FOUND);
+                            break;
+                        case 500:
+                        case 501:
+                            caller.setLastError(ApiError.HTTP_SERVER_ERROR);
+                            break;
+                        default:
+                            Log.d(TAG, "HTTP response code: " + response.code());
+                            caller.setLastErrorMessage("HTTP response code: " + response.code());
+                            caller.setLastError(ApiError.HTTP_OTHER_ERROR);
+                            break;
+                    }
                 }
-            };
 
-            /* lets shamelessly hijack OkHttpProgressGlideModule */
-
-            OkHttpClient client = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .writeTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(30, TimeUnit.SECONDS)
-                    .addNetworkInterceptor(createInterceptor(listener))
-                    .build();
-
-            Response response = client.newCall(request).execute();
-
-            if (response.isSuccessful()) {
-                String payloadReceived = response.body().string();
-
-                if (m_transportDebugging) Log.d(TAG, "<<< " + payloadReceived);
-
-                JsonElement result = JsonParser.parseString(payloadReceived);
-                JsonObject resultObj = result.getAsJsonObject();
-
-                int statusCode = resultObj.get("status").getAsInt();
-
-                caller.setStatusCode(statusCode);
-
-                switch (statusCode) {
-                    case API_STATUS_OK:
-                        caller.setLastError(ApiError.SUCCESS);
-                        return result.getAsJsonObject().get("content");
-                    case API_STATUS_ERR:
-                        JsonObject contentObj = resultObj.get("content").getAsJsonObject();
-                        String error = contentObj.get("error").getAsString();
-
-                        switch (error) {
-                            case "LOGIN_ERROR":
-                            case "NOT_LOGGED_IN":
-                                caller.setLastError(ApiError.LOGIN_FAILED);
-                                break;
-                            case "API_DISABLED":
-                                caller.setLastError(ApiError.API_DISABLED);
-                                break;
-                            case "INCORRECT_USAGE":
-                                caller.setLastError(ApiError.API_INCORRECT_USAGE);
-                                break;
-                            case "UNKNOWN_METHOD":
-                                caller.setLastError(ApiError.API_UNKNOWN_METHOD);
-                                break;
-                            default:
-                                Log.d(TAG, "Unknown API error: " + error);
-                                caller.setLastErrorMessage(error);
-                                caller.setLastError(ApiError.API_UNKNOWN);
-                                break;
-                        }
-                }
-
-            } else {
-                switch (response.code()) {
-                    case 400:
-                        caller.setLastError(ApiError.HTTP_BAD_REQUEST);
-                        break;
-                    case 401:
-                        caller.setLastError(ApiError.HTTP_UNAUTHORIZED);
-                        break;
-                    case 403:
-                        caller.setLastError(ApiError.HTTP_FORBIDDEN);
-                        break;
-                    case 404:
-                        caller.setLastError(ApiError.HTTP_NOT_FOUND);
-                        break;
-                    case 500:
-                    case 501:
-                        caller.setLastError(ApiError.HTTP_SERVER_ERROR);
-                        break;
-                    default:
-                        Log.d(TAG, "HTTP response code: " + response.code());
-                        caller.setLastErrorMessage("HTTP response code: " + response.code());
-                        caller.setLastError(ApiError.HTTP_OTHER_ERROR);
-                        break;
-                }
+                return null;
             }
-
-            return null;
         } catch (javax.net.ssl.SSLPeerUnverifiedException e) {
             caller.setLastError(ApiError.SSL_REJECTED);
             caller.setLastErrorMessage(e.getMessage());
@@ -275,14 +261,53 @@ public class ApiCommon {
         void update(HttpUrl url, long bytesRead, long contentLength);
     }
 
-    private static Interceptor createInterceptor(final ResponseProgressListener listener) {
+    private static Interceptor createInterceptor() {
         return chain -> {
             Request request = chain.request();
             Response response = chain.proceed(request);
+            ApiCaller caller = request.tag(ApiCaller.class);
+            if (caller == null) return response;
+            ResponseProgressListener listener = (url, bytesRead, contentLength) -> {
+                // Log.d(TAG, "[progress] " + url + " " + bytesRead + " of " + contentLength);
+
+                if (contentLength > 0)
+                    caller.notifyProgress((int) (bytesRead * 100f / contentLength));
+            };
             return response.newBuilder()
                     .body(new ProgressResponseBody(request.url(), response.body(), listener))
                     .build();
         };
+    }
+
+    private static class RetryInterceptor implements Interceptor {
+        private static final int MAX_ATTEMPTS = 3;
+        private static final long INITIAL_BACKOFF_MS = 500;
+
+        @NonNull
+        @Override
+        public Response intercept(@NonNull Interceptor.Chain chain) throws IOException {
+            Request request = chain.request();
+            IOException lastException = null;
+
+            for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+                try {
+                    return chain.proceed(request);
+                } catch (IOException e) {
+                    lastException = e;
+                    if (attempt == MAX_ATTEMPTS - 1) break;
+
+                    long backoff = INITIAL_BACKOFF_MS * (1L << attempt);
+                    long jitter = (long) (backoff * 0.3 * Math.random());
+                    try {
+                        Thread.sleep(backoff + jitter);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new IOException("Interrupted during retry backoff", ie);
+                    }
+                }
+            }
+            throw lastException;
+        }
     }
 
     private static class ProgressResponseBody extends ResponseBody {

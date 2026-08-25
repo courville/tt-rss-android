@@ -7,12 +7,15 @@ import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -22,7 +25,6 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
@@ -269,21 +271,13 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
         return m_smallScreenMode;
     }
 
-    @SuppressWarnings("deprecation")
     public boolean isPortrait() {
-        Display display = getWindowManager().getDefaultDisplay();
-
-        int width = display.getWidth();
-        int height = display.getHeight();
-
-        return width < height;
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
-    @SuppressLint({"NewApi", "ServiceCast"})
-    @SuppressWarnings("deprecation")
     public void copyToClipboard(String str) {
-        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        clipboard.setText(str);
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clipboard.setPrimaryClip(ClipData.newPlainText("ttrss", str));
 
         Snackbar.make(findViewById(android.R.id.content), R.string.text_copied_to_clipboard, Snackbar.LENGTH_SHORT)
                 .setAction(R.string.dialog_close, v -> {
@@ -374,10 +368,10 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
                                 File file = new File(shareFolder, "shared.png");
 
-                                FileOutputStream stream = new FileOutputStream(file);
-                                resource.compress(Bitmap.CompressFormat.PNG, 90, stream);
-                                stream.flush();
-                                stream.close();
+                                try (FileOutputStream stream = new FileOutputStream(file)) {
+                                    resource.compress(Bitmap.CompressFormat.PNG, 90, stream);
+                                    stream.flush();
+                                }
 
                                 Uri shareUri = FileProvider.getUriForFile(CommonActivity.this,
                                         "org.fox.ttrss.SharedFileProvider", file);

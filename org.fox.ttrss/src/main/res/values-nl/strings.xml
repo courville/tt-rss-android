@@ -289,4 +289,7 @@
     <string name="enable_icon_tinting_summary">Zet uit als je problemen hebt om icoontjes te onderscheiden door hun kleur</string>
     <string name="expand_special_cat">Klap categorie Special uit</string>
     <string name="headline_display_mode_split">Gesplitste weergave: afbeelding links, tekst rechts</string>
+    <string name="move_between_articles_long">Navigeer artikelen door naar links en rechts te vegen</string>
+    <string name="move_between_articles">Navigeer tussen artikelen</string>
+    <string name="headline_display_mode_compact_feed_images">Compact (feed afbeeldingen)</string>
 </resources>
