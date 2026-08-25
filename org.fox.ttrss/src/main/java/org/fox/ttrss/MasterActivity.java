@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -60,6 +61,20 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (m_drawerLayout != null && !m_drawerLayout.isDrawerOpen(GravityCompat.START) &&
+                        (getSupportFragmentManager().getBackStackEntryCount() > 0 || getActiveFeed() != null)) {
+
+                    m_drawerLayout.openDrawer(GravityCompat.START);
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
 
         Application.getInstance().load(savedInstanceState);
 
@@ -359,22 +374,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         }
         Log.d(TAG, "onOptionsItemSelected, unhandled id=" + item.getItemId());
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (m_drawerLayout != null && !m_drawerLayout.isDrawerOpen(GravityCompat.START) &&
-                (getSupportFragmentManager().getBackStackEntryCount() > 0 || getActiveFeed() != null)) {
-
-            m_drawerLayout.openDrawer(GravityCompat.START);
-        } else {
-            try {
-                super.onBackPressed();
-            } catch (IllegalStateException e) {
-                // java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override

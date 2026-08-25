@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -40,6 +41,18 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
         getSupportActionBar().setHomeButtonEnabled(true);
 
         setSmallScreen(findViewById(R.id.sw600dp_anchor) == null);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Intent resultIntent = new Intent();
+
+                setResult(Activity.RESULT_OK, resultIntent);
+
+                setEnabled(false);
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
 
         Application.getInstance().load(savedInstanceState);
 
@@ -256,20 +269,6 @@ public class DetailActivity extends OnlineActivity implements HeadlinesEventList
     public void onHeadlinesLoadingProgress(int progress) {
         setLoadingVisible(progress < 100);
         setLoadingProgress(progress);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent resultIntent = new Intent();
-
-        setResult(Activity.RESULT_OK, resultIntent);
-
-        try {
-            super.onBackPressed();
-        } catch (IllegalStateException e) {
-            // java.lang.IllegalStateException: Can not perform this action after onSaveInstanceState
-            e.printStackTrace();
-        }
     }
 
     @Override
