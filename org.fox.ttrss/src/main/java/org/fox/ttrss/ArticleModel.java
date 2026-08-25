@@ -323,11 +323,15 @@ public class ArticleModel extends AndroidViewModel implements ApiCommon.ApiCalle
             int numUnread = Math.toIntExact(getUnread(articles).size());
             int numAll = Math.toIntExact(articles.size());
 
-            if ("unread".equals(viewMode)) {
-                skip = numUnread;
-            } else {
-                skip = numAll;
-            }
+            // unread-only feeds (explicit unread view mode, and the Fresh
+            // virtual feed) shrink as articles are marked read, so paginate
+            // by numUnread there; adaptive mode does the same as long as
+            // unread articles remain, falling back to numAll once exhausted
+            boolean unreadOnlyPagination = "unread".equals(viewMode)
+                    || m_feed.id == Feed.FRESH
+                    || ("adaptive".equals(viewMode) && numUnread > 0);
+
+            skip = unreadOnlyPagination ? numUnread : numAll;
         }
 
         return skip;
