@@ -181,6 +181,7 @@ def getVersion() {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
     implementation 'com.squareup.okhttp3:okhttp:5.5.0'
     implementation 'org.jsoup:jsoup:1.23.1'
     implementation 'com.bogdwellers:pinchtozoom:0.1'
@@ -206,6 +207,7 @@ dependencies {
 
     errorprone 'com.google.errorprone:error_prone_core:2.50.0'
     annotationProcessor 'com.google.errorprone:error_prone_core:2.50.0'
+    testAnnotationProcessor 'com.google.errorprone:error_prone_core:2.50.0'
 }
 
 tasks.withType(JavaCompile).configureEach {
