@@ -88,6 +88,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class HeadlinesFragment extends androidx.fragment.app.Fragment {
@@ -1287,11 +1288,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 DateFormat df;
 
                 if (now.getYear() == d.getYear() && now.getMonth() == d.getMonth() && now.getDay() == d.getDay()) {
-                    df = new SimpleDateFormat("HH:mm");
+                    df = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 } else if (article.updated > half_a_year_ago) {
-                    df = new SimpleDateFormat("MMM dd");
+                    df = new SimpleDateFormat("MMM dd", Locale.getDefault());
                 } else {
-                    df = new SimpleDateFormat("MMM yyyy");
+                    df = new SimpleDateFormat("MMM yyyy", Locale.getDefault());
                 }
 
                 df.setTimeZone(TimeZone.getDefault());
@@ -1501,7 +1502,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
 
         private void updateTextCheckedState(final Article article, final ArticleViewHolder holder) {
-            String tmp = !article.title.isEmpty() ? article.title.substring(0, 1).toUpperCase() : "?";
+            String tmp = !article.title.isEmpty() ? article.title.substring(0, 1).toUpperCase(Locale.getDefault()) : "?";
 
             if (article.selected) {
                 holder.textImage.setImageDrawable(m_drawableBuilder.build(" ", 0xff616161));
