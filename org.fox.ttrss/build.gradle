@@ -53,7 +53,7 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
+            signingConfig = signingConfigs.debug
             minifyEnabled = false
             versionNameSuffix = "-debug"
             // applicationIdSuffix ".debug"  // Removed to allow debug builds to replace release builds
