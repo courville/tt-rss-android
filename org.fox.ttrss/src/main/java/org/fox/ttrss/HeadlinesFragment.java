@@ -61,6 +61,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
@@ -613,6 +614,22 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         public TextureView flavorVideoView;
         public MaterialButton attachmentsView;
         public TextView linkHost;
+        private long imageGeneration;
+        Target<Size> flavorSizeTarget;
+
+        void clearImages(RequestManager requests) {
+            // Invalidate callbacks before clearing: clear() can synchronously
+            // deliver progress-target cleanup callbacks for the previous row.
+            imageGeneration++;
+            if (flavorSizeTarget != null) {
+                requests.clear(flavorSizeTarget);
+                flavorSizeTarget = null;
+            }
+            if (flavorImageView != null)
+                requests.clear(flavorImageView);
+            if (textImage != null)
+                requests.clear(textImage);
+        }
 
         public ArticleViewHolder(View v) {
             super(v);
@@ -644,13 +661,15 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
     }
 
-    private static class FlavorProgressTarget<Z> extends ProgressTarget<String, Z> {
+    static class FlavorProgressTarget<Z> extends ProgressTarget<String, Z> {
         private final ArticleViewHolder holder;
+        private final long imageGeneration;
 
         public FlavorProgressTarget(Target<Z> target, String model, ArticleViewHolder holder) {
             super(target);
             setModel(model);
             this.holder = holder;
+            imageGeneration = holder.imageGeneration;
         }
 
         @Override
@@ -660,6 +679,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         @Override
         protected void onConnecting() {
+            if (imageGeneration != holder.imageGeneration) return;
             holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
             holder.flavorImageLoadingBar.setIndeterminate(true);
@@ -668,6 +688,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         @Override
         protected void onDownloading(long bytesRead, long expectedLength) {
+            if (imageGeneration != holder.imageGeneration) return;
             holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
             holder.flavorImageLoadingBar.setIndeterminate(false);
@@ -676,6 +697,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         @Override
         protected void onDownloaded() {
+            if (imageGeneration != holder.imageGeneration) return;
             holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
             holder.flavorImageLoadingBar.setIndeterminate(true);
@@ -683,6 +705,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         @Override
         protected void onDelivered() {
+            if (imageGeneration != holder.imageGeneration) return;
             holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
             holder.flavorImageLoadingBar.setVisibility(View.INVISIBLE);
@@ -1018,8 +1041,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         public void onViewRecycled(@NonNull ArticleViewHolder holder) {
             super.onViewRecycled(holder);
 
-            if (holder.flavorImageView != null)
-                Glide.with(HeadlinesFragment.this).clear(holder.flavorImageView);
+            holder.clearImages(Glide.with(HeadlinesFragment.this));
         }
 
         @Override
@@ -1099,6 +1121,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull final ArticleViewHolder holder, int position) {
+            holder.clearImages(Glide.with(HeadlinesFragment.this));
             Article article = getItem(position);
 
             if (article.id == Article.TYPE_AMR_FOOTER && m_prefs.getBoolean("headlines_mark_read_scroll", false)) {
@@ -1426,6 +1449,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
 
         private void loadFlavorImage(final Article article, final ArticleViewHolder holder, final int maxImageHeight) {
+            final long imageGeneration = holder.imageGeneration;
             Glide.with(HeadlinesFragment.this)
                     .load(article.flavorImageUri)
                     .transition(DrawableTransitionOptions.withCrossFade())
@@ -1435,6 +1459,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            if (imageGeneration != holder.imageGeneration) return true;
                             holder.flavorImageHolder.setVisibility(View.GONE);
 
                             holder.flavorImageView.setVisibility(View.GONE);
@@ -1445,6 +1470,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            if (imageGeneration != holder.imageGeneration) return true;
                             holder.flavorImageHolder.setVisibility(View.VISIBLE);
 
                             holder.flavorImageView.setVisibility(View.VISIBLE);
@@ -1459,9 +1485,13 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
         }
 
         private void checkImageAndLoad(final Article article, final ArticleViewHolder holder, final int maxImageHeight) {
+            final long imageGeneration = holder.imageGeneration;
             FlavorProgressTarget<Size> flavorProgressTarget = new FlavorProgressTarget<>(new SimpleTarget<Size>() {
                 @Override
                 public void onResourceReady(@NonNull Size resource, @Nullable com.bumptech.glide.request.transition.Transition<? super Size> transition) {
+                    // The size request is independent of the ImageView request.
+                    // Never start an old article's image load in a rebound row.
+                    if (imageGeneration != holder.imageGeneration) return;
 
                     if (BuildConfig.DEBUG)
                         Log.d(TAG, "got resource of " + resource.getWidth() + "x" + resource.getHeight());
@@ -1482,6 +1512,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
                 }
             }, article.flavorImageUri, holder);
 
+            holder.flavorSizeTarget = flavorProgressTarget;
             Glide.with(HeadlinesFragment.this)
                     .as(Size.class)
                     .load(article.flavorImageUri)
