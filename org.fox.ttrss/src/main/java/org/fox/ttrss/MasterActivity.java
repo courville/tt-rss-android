@@ -30,6 +30,7 @@ import com.google.gson.JsonElement;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Feed;
+import org.fox.ttrss.util.CategoryNavigationView;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -78,20 +79,6 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (m_drawerLayout != null && !m_drawerLayout.isDrawerOpen(GravityCompat.START) &&
-                        (getSupportFragmentManager().getBackStackEntryCount() > 0 || getActiveFeed() != null)) {
-
-                    m_drawerLayout.openDrawer(GravityCompat.START);
-                } else {
-                    setEnabled(false);
-                    getOnBackPressedDispatcher().onBackPressed();
-                }
-            }
-        });
-
         Application.getInstance().load(savedInstanceState);
 
         enableActionModeObserver();
@@ -101,6 +88,12 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         m_loadingProgress = findViewById(R.id.loading_progress);
 
         m_drawerLayout = findViewById(R.id.headlines_drawer);
+        getOnBackPressedDispatcher().addCallback(this, createBackCallback(m_drawerLayout));
+
+        CategoryNavigationView navigationView = findViewById(R.id.modal_navigation_view);
+        if (navigationView != null) {
+            navigationView.setOnBackInvokedListener(() -> getOnBackPressedDispatcher().onBackPressed());
+        }
 
         if (m_drawerLayout != null) {
 
@@ -272,6 +265,28 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
         // Sync the toggle state after onRestoreInstanceState has occurred.
         if (m_drawerToggle != null) m_drawerToggle.syncState();
+    }
+
+    OnBackPressedCallback createBackCallback(DrawerLayout drawer) {
+        return new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (drawer != null && !drawer.isDrawerVisible(GravityCompat.START) &&
+                        (getSupportFragmentManager().getBackStackEntryCount() > 0 || getActiveFeed() != null)) {
+                    drawer.openDrawer(GravityCompat.START);
+                } else {
+                    // Let FragmentManager navigate to the parent category, then let
+                    // the system leave the activity when the category stack is empty.
+                    setEnabled(false);
+                    try {
+                        getOnBackPressedDispatcher().onBackPressed();
+                    } finally {
+                        // Delegation may only pop a category, leaving this activity alive.
+                        setEnabled(true);
+                    }
+                }
+            }
+        };
     }
 
     @Override

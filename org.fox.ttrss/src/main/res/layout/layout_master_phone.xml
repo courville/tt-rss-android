@@ -1,4 +1,4 @@
-<androidx.drawerlayout.widget.DrawerLayout
+<org.fox.ttrss.util.CategoryDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/headlines_drawer"
     android:layout_width="fill_parent"
@@ -46,7 +46,7 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <com.google.android.material.navigation.NavigationView
+    <org.fox.ttrss.util.CategoryNavigationView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/modal_navigation_view"
         android:layout_width="300dp"
@@ -59,6 +59,6 @@
             android:layout_height="match_parent" >
         </FrameLayout>
 
-    </com.google.android.material.navigation.NavigationView>
+    </org.fox.ttrss.util.CategoryNavigationView>
 
-</androidx.drawerlayout.widget.DrawerLayout>
+</org.fox.ttrss.util.CategoryDrawerLayout>
