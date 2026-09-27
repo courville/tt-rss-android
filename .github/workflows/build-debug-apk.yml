@@ -40,8 +40,9 @@ jobs:
     - name: Restore stable debug keystore
       run: |
         if [ -z "${DEBUG_KEYSTORE_BASE64}" ]; then
-          echo "ERROR: DEBUG_KEYSTORE_BASE64 is required."
-          exit 1
+          echo "DEBUG_KEYSTORE_BASE64 is not set; skipping custom keystore."
+          echo "The debug build will fall back to the default generated debug keystore."
+          exit 0
         fi
         mkdir -p "${HOME}/.android"
         echo "${DEBUG_KEYSTORE_BASE64}" | base64 --decode > "${HOME}/.android/debug.keystore"
