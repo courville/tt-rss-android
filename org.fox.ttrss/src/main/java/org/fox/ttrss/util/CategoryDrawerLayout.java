@@ -2,18 +2,36 @@ package org.fox.ttrss.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.View;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.drawerlayout.widget.DrawerLayout;
+
+import org.fox.ttrss.R;
 
 /** Leaves Back navigation to the activity instead of closing the category drawer. */
 @SuppressLint("GestureBackNavigation") // Only bypasses legacy interception; navigation uses AndroidX.
 public class CategoryDrawerLayout extends DrawerLayout {
     public CategoryDrawerLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    @Nullable
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @Override
+    public OnBackInvokedDispatcher findOnBackInvokedDispatcherForChild(
+            @NonNull View child, @NonNull View requester) {
+        // Material's NavigationView must not register its drawer-closing overlay
+        // callback: it would mask FragmentManager and the system's exit preview.
+        // Only exclude the container itself; descendants keep their normal dispatchers.
+        if (child == requester && requester.getId() == R.id.modal_navigation_view) return null;
+        return super.findOnBackInvokedDispatcherForChild(child, requester);
     }
 
     @Override

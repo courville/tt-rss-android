@@ -46,7 +46,7 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <org.fox.ttrss.util.CategoryNavigationView
+    <com.google.android.material.navigation.NavigationView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/modal_navigation_view"
         android:layout_width="300dp"
@@ -59,6 +59,6 @@
             android:layout_height="match_parent" >
         </FrameLayout>
 
-    </org.fox.ttrss.util.CategoryNavigationView>
+    </com.google.android.material.navigation.NavigationView>
 
 </org.fox.ttrss.util.CategoryDrawerLayout>

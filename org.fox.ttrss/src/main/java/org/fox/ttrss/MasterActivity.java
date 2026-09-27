@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -30,7 +29,6 @@ import com.google.gson.JsonElement;
 
 import org.fox.ttrss.types.Article;
 import org.fox.ttrss.types.Feed;
-import org.fox.ttrss.util.CategoryNavigationView;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -58,6 +56,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
     private ActionBarDrawerToggle m_drawerToggle;
     private DrawerLayout m_drawerLayout;
+    private CategoryBackCallback m_categoryBackCallback;
 
     @SuppressLint("NewApi")
     @Override
@@ -88,12 +87,9 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
         m_loadingProgress = findViewById(R.id.loading_progress);
 
         m_drawerLayout = findViewById(R.id.headlines_drawer);
-        getOnBackPressedDispatcher().addCallback(this, createBackCallback(m_drawerLayout));
-
-        CategoryNavigationView navigationView = findViewById(R.id.modal_navigation_view);
-        if (navigationView != null) {
-            navigationView.setOnBackInvokedListener(() -> getOnBackPressedDispatcher().onBackPressed());
-        }
+        m_categoryBackCallback = new CategoryBackCallback(m_drawerLayout,
+                getSupportFragmentManager(), () -> getActiveFeed() != null);
+        getOnBackPressedDispatcher().addCallback(this, m_categoryBackCallback);
 
         if (m_drawerLayout != null) {
 
@@ -265,28 +261,19 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
         // Sync the toggle state after onRestoreInstanceState has occurred.
         if (m_drawerToggle != null) m_drawerToggle.syncState();
+        m_categoryBackCallback.updateEnabled();
     }
 
-    OnBackPressedCallback createBackCallback(DrawerLayout drawer) {
-        return new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (drawer != null && !drawer.isDrawerVisible(GravityCompat.START) &&
-                        (getSupportFragmentManager().getBackStackEntryCount() > 0 || getActiveFeed() != null)) {
-                    drawer.openDrawer(GravityCompat.START);
-                } else {
-                    // Let FragmentManager navigate to the parent category, then let
-                    // the system leave the activity when the category stack is empty.
-                    setEnabled(false);
-                    try {
-                        getOnBackPressedDispatcher().onBackPressed();
-                    } finally {
-                        // Delegation may only pop a category, leaving this activity alive.
-                        setEnabled(true);
-                    }
-                }
-            }
-        };
+    @Override
+    public void onDestroy() {
+        if (m_categoryBackCallback != null) m_categoryBackCallback.dispose();
+        super.onDestroy();
+    }
+
+    @Override
+    public void setActiveFeed(Feed feed) {
+        super.setActiveFeed(feed);
+        if (m_categoryBackCallback != null) m_categoryBackCallback.updateEnabled();
     }
 
     @Override
@@ -418,6 +405,7 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
     public void onResume() {
         super.onResume();
 
+        m_categoryBackCallback.updateEnabled();
         invalidateOptionsMenu();
     }
 
