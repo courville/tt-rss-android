@@ -408,6 +408,8 @@ public class MasterActivity extends OnlineActivity implements HeadlinesEventList
 
     @Override
     public void onArticleSelected(Article article) {
+        if (article == null || article.id < 0) return;
+
         Article articleClone = new Article(article);
 
         if (articleClone.unread) {

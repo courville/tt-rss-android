@@ -448,8 +448,8 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
 
     // uses chrome custom tabs when available
     public void openUri(Uri uri) {
-        boolean enableCustomTabs = m_prefs.getBoolean("enable_custom_tabs", true);
-        final boolean askEveryTime = m_prefs.getBoolean("custom_tabs_ask_always", true);
+        // Empty article links must not become a bare "https:" browser intent.
+        if (uri == null || uri.toString().trim().isEmpty()) return;
 
         if (uri.getScheme() == null) {
             try {
@@ -458,6 +458,12 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
                 e.printStackTrace();
             }
         }
+
+        if (("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
+                && (uri.getHost() == null || uri.getHost().isEmpty())) return;
+
+        boolean enableCustomTabs = m_prefs.getBoolean("enable_custom_tabs", true);
+        final boolean askEveryTime = m_prefs.getBoolean("custom_tabs_ask_always", true);
 
         final Uri finalUri = uri;
 
@@ -643,4 +649,3 @@ public class CommonActivity extends AppCompatActivity implements SharedPreferenc
     }
 
 }
-

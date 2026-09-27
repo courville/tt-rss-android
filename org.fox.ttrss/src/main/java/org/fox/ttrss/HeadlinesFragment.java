@@ -494,7 +494,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
                 Log.d(TAG, "observed headlines last update=" + lastUpdate + " article count=" + tmp.size());
 
-                if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+                if (!tmp.isEmpty() && m_prefs.getBoolean("headlines_mark_read_scroll", false))
                     tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
                 final boolean appended = model.getAppend();
@@ -540,7 +540,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
 
             List<Article> tmp = new ArrayList<>(articles);
 
-            if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+            if (!tmp.isEmpty() && m_prefs.getBoolean("headlines_mark_read_scroll", false))
                 tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
             m_adapter.submitList(tmp);
@@ -806,6 +806,11 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
             View v = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
 
             ArticleViewHolder holder = new ArticleViewHolder(v);
+
+            // The scroll spacer is not an article and must not open one or
+            // display its context menu when tapped or long-pressed.
+            if (viewType == VIEW_AMR_FOOTER)
+                return holder;
 
             // set on click handlers once when view is created
 
@@ -1692,7 +1697,7 @@ public class HeadlinesFragment extends androidx.fragment.app.Fragment {
     private void syncToSharedArticles() {
         List<Article> tmp = new ArrayList<>(Application.getArticles());
 
-        if (m_prefs.getBoolean("headlines_mark_read_scroll", false))
+        if (!tmp.isEmpty() && m_prefs.getBoolean("headlines_mark_read_scroll", false))
             tmp.add(new Article(Article.TYPE_AMR_FOOTER));
 
         m_adapter.submitList(tmp);
