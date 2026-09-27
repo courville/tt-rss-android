@@ -24,6 +24,7 @@ public class CategoryDrawerLayout extends DrawerLayout {
 
     @Nullable
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SuppressWarnings("ReferenceEquality") // Match the exact View instance, regardless of equals() overrides.
     @Override
     public OnBackInvokedDispatcher findOnBackInvokedDispatcherForChild(
             @NonNull View child, @NonNull View requester) {
